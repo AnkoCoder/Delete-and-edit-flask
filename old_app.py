@@ -5,6 +5,27 @@ from flask import Flask
 from flask import redirect
 app = Flask(__name__)
 
+@app.route('/')
+def get():
+    with open('db.txt') as f:
+        items = json.load(f)
+    return render_template(
+        'index.html',
+        items=items
+    )
+
+
+@app.route('/post', methods=['POST'])
+def post():
+    item = request.form['item']
+    quantity = request.form['quantity']
+    with open('db.txt') as f:
+        items = json.load(f)
+    items.update({item: quantity})
+    with open('db.txt', 'w') as f:
+        json.dump(items, f)
+    return redirect('/')
+
 @app.route('/', methods=['GET', 'POST'])
 def items():
     with open('db.txt', 'r') as f:
@@ -28,5 +49,3 @@ def remove_items():
             with open('db.txt', 'w') as f2:
                 json.dump(items, f2)
         return render_template('remove.html', items=items)
-
-
